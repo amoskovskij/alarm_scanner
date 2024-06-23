@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.text.Text?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.control.TextArea?>
+
+<VBox spacing="10.0" xmlns:fx="http://javafx.com/fxml"
+      fx:controller="com.amoskovskyi.alarm_scanner.AlarmScannerController">
+    <padding>
+        <Insets bottom="10.0" left="10.0" right="10.0" top="10.0"/>
+    </padding>
+
+    <Text fx:id="sourcesText" text="Telegram URL (scanning interval 30 seconds"/>
+    <TextArea fx:id="sourcesInput" minHeight="43" minWidth="760"/>
+    <Text fx:id="keywordsText" text="List of Key Phrases"/>
+    <TextArea fx:id="keywordsInput" wrapText="true" minHeight="90" minWidth="760"/>
+    <HBox spacing="20.0" xmlns:fx="http://javafx.com/fxml">
+        <Text fx:id="messageQueueText" text="Message Queue (only last 15 minutes)"/>
+        <Button text="Refresh" onAction="#onRefreshButtonClick"/>
+        <Label fx:id="refreshedLabel" text="Refreshing!" visible="false"/>
+        <Label fx:id="alarm" textFill="red" visible="false"/>
+    </HBox>
+    <TextArea fx:id="messageQueueOutput" minHeight="420" minWidth="760" wrapText="true" editable="false"/>
+</VBox>
