@@ -3,14 +3,12 @@ package com.amoskovskyi.alarm_scanner;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
-import org.jsoup.nodes.TextNode;
 import org.jsoup.safety.Safelist;
 import org.jsoup.select.Elements;
 
 import java.time.*;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
-import java.util.StringJoiner;
 
 import static java.time.format.DateTimeFormatter.ISO_OFFSET_DATE_TIME;
 

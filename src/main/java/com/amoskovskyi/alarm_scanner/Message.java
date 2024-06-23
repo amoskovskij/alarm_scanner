@@ -1,7 +1,5 @@
 package com.amoskovskyi.alarm_scanner;
 
-import org.jsoup.Jsoup;
-
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
@@ -19,7 +17,7 @@ public class Message {
 
     public String getMessageStr() {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:mm:ss dd-MM-yyyy");
-        return url + ":\n" + message + "\n" + dateTime.format(formatter);
+        return dateTime.format(formatter) + " " + url + ":\n" + message;
     }
 
     public LocalDateTime getDateTime() {

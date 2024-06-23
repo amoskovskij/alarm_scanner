@@ -1,6 +1,9 @@
 package com.amoskovskyi.alarm_scanner;
 
 import java.io.*;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.stream.Collectors;
 
@@ -17,16 +20,20 @@ public class AlarmKeywords {
     public void updateKeywords(String words) {
         if (!words.isEmpty()) {
             keywordsStr = words;
+        } else {
+            keywordsStr = "Empty list";
         }
         keywords.clear();
         keywords.add("Error getting URL".toLowerCase());
         for (String word : keywordsStr.split(";")) {
-            keywords.add(word.trim().toLowerCase());
+            keywords.add(word.toLowerCase());
         }
     }
 
     public void readKeywordFile() {
-        try (BufferedReader br = new BufferedReader(new FileReader("keyword.txt"))) {
+        try (BufferedReader br = new BufferedReader(
+                new InputStreamReader(
+                        Files.newInputStream(Paths.get("keyword.txt")), StandardCharsets.UTF_8))) {
             updateKeywords(br.lines().collect(Collectors.joining("\n")));
         } catch (IOException e) {
             System.out.println("Cannot read 'keyword.txt'");
@@ -35,7 +42,9 @@ public class AlarmKeywords {
     }
 
     public void saveKeywordFile() throws IOException {
-        try (PrintWriter out = new PrintWriter(new FileOutputStream("keyword.txt", false))) {
+        try (PrintWriter out = new PrintWriter(
+                new OutputStreamWriter(
+                        new FileOutputStream("keyword.txt", false), StandardCharsets.UTF_8))) {
             out.print(keywordsStr);
         }
     }

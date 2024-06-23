@@ -9,24 +9,22 @@ import javafx.stage.Stage;
 import java.awt.*;
 import java.io.*;
 import java.util.*;
-import java.util.List;
 
 public class AlarmScannerApplication extends Application {
 
     @Override
     public void init() throws Exception {
         super.init();
-        System.out.println("init()");
     }
 
     @Override
     public void start(Stage stage) throws IOException {
         FXMLLoader fxmlLoader = new FXMLLoader(AlarmScannerApplication.class.getResource("alarm_scanner-view.fxml"));
-        Scene scene = new Scene(fxmlLoader.load(), 800, 706);
+        Scene scene = new Scene(fxmlLoader.load(), 1000, 706);
         stage.setTitle("Alarm scanner");
         AlarmScannerController controller = fxmlLoader.getController();
 
-        Task<Integer> task = new Task<>() {
+        Task<Integer> task = new Task<Integer>() {
             @Override
             protected Integer call() throws Exception {
                 return alarmScanner(controller);
@@ -42,15 +40,13 @@ public class AlarmScannerApplication extends Application {
     @Override
     public void stop() throws Exception {
         super.stop();
-        System.out.println("stop()");
     }
 
-    public static void main(String[] args) {
+    public static void myMain() {
         launch();
     }
 
     private void onCloseStage(AlarmScannerController controller, Task<Integer> task) {
-        System.out.println("Stage is closing");
         task.cancel(true);
         // Save files
         controller.alarmKeywords.updateKeywords(controller.getKeywordsInput());
@@ -68,54 +64,44 @@ public class AlarmScannerApplication extends Application {
         int iter = 0;
         int sleepDuration = 30000; // microseconds
         int blink = 1000; // microseconds
-        boolean alarm;
         Deque<ArrayList<Message>> messageQueue = new ArrayDeque<>();
-        ArrayList<Message> lastMessages;
+        ArrayList<Message> messages;
         while (true) {
 
             try {
                 for (Source source : controller.alarmSources.getSources()) {
-
-                    alarm = false;
+                    
+                    controller.alarm = false;
                     if (controller.isNeedRefresh) {
                         controller.isNeedRefresh = false;
                         controller.alarmKeywords.updateKeywords(controller.getKeywordsInput());
                         controller.alarmSources.updateSources(controller.getSourcesInput());
-                        Platform.runLater(controller::setRefreshedLabelInvisible);
+                        Platform.runLater(controller::onEndUpdating);
                         break;
                     }
 
-                    lastMessages = source.getPosts();
-                    messageQueue.add(lastMessages);
+                    messages = source.getPosts();
+                    messageQueue.add(messages);
                     if (messageQueue.size() > controller.alarmSources.getSources().size()) {
                         messageQueue.pop();
                     }
 
-                    List<Message> messagesList = new ArrayList<>();
+                    messages = new ArrayList<>();
                     for (ArrayList<Message> messagesOfSource : messageQueue) {
-                        for (Message message : messagesOfSource) {
-                            messagesList.add(message);
-                            for (String word : controller.alarmKeywords.getKeywords()) {
-                                if (message.getMessage().toLowerCase().contains(word)) {
-                                    alarm = true;
-                                    Platform.runLater(() -> controller.setAlarmText("Alarm: " + word + " !!!"));
-                                    break;
-                                }
-                            }
-                        }
+                        messages.addAll(messagesOfSource);
                     }
-                    messagesList.sort(Comparator.comparing(Message::getDateTime));
+                    messages.sort(Comparator.comparing(Message::getDateTime));
                     StringJoiner sj = new StringJoiner("\n\n");
-                    for (Message message : messagesList) sj.add(message.getMessageStr());
+                    for (Message message : messages) sj.add(message.getMessageStr());
                     Platform.runLater(() -> controller.setMessageQueueOutput(sj.toString()));
 
                     int jEnd = sleepDuration / (blink*3) * 2;
                     for (int j = 0; j < jEnd; j++) {
-                        if (alarm && j % 2 == 0) {
-                            Toolkit.getDefaultToolkit().beep();
+                        if (controller.alarm && j % 2 == 0) {
+                            if (controller.isSoundOn) Toolkit.getDefaultToolkit().beep();
                             Platform.runLater(controller::setAlarmVisible);
-                        } else if (alarm) {
-                            Toolkit.getDefaultToolkit().beep();
+                        } else if (controller.alarm) {
+                            if (controller.isSoundOn) Toolkit.getDefaultToolkit().beep();
                             Platform.runLater(controller::setAlarmInvisible);
                         }
 
